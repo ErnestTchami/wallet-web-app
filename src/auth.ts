@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { user as User } from "@/db/schema";
 
 export const options: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GitHubProvider({
       clientId: process.env.GITHUB_ID as string,
