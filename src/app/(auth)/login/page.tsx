@@ -3,7 +3,7 @@ import React from "react";
 
 function page() {
   return (
-    <div>
+    <div className="bg-neutral-900">
       <Authentication />
     </div>
   );
