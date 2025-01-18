@@ -3,6 +3,8 @@ import { Raleway } from "next/font/google";
 import "../globals.css";
 import { SessionProvider } from "@/lib/utils/SessionProvider";
 import { SidebarLinks } from "@/components/SidebarLinks";
+import { Toaster } from "react-hot-toast";
+import ReactQueryClientProvider from "@/lib/utils/ReactQueryProvider";
 
 const raleway = Raleway({
   variable: "--font-roboto",
@@ -22,11 +24,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <SessionProvider>
-        <body className={` ${raleway.className} antialiased`}>
-          <SidebarLinks>{children}</SidebarLinks>
-        </body>
-      </SessionProvider>
+      <ReactQueryClientProvider>
+        <SessionProvider>
+          <Toaster />
+          <body className={` ${raleway.className} antialiased`}>
+            <SidebarLinks>{children}</SidebarLinks>
+          </body>
+        </SessionProvider>
+      </ReactQueryClientProvider>
     </html>
   );
 }

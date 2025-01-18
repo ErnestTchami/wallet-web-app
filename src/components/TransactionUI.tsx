@@ -1,78 +1,25 @@
 "use client";
 import React from "react";
-import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-
-const amountSchema = z.string().refine(
-  (val) => {
-    return /^0$|^[1-9]\d*$/.test(val);
-  },
-  {
-    message:
-      "Amount must be a number and cannot start with zero (except for '0').",
-  }
-);
-const formSchema = z.object({
-  type: z.enum(["Expense", "Income", "Transfer"]),
-  account: z.string().nonempty("Account is required"),
-  amount: amountSchema,
-  currency: z.string(),
-  category: z.string().nonempty("Category is required"),
-  labels: z.string().optional(),
-  date: z.string().nonempty("Date is required"),
-  time: z.string().nonempty("Time is required"),
-  payee: z.string().optional(),
-  note: z.string().optional(),
-});
+import UseExpense from "@/hook/UseExpense";
 
 const ExpenseForm = () => {
   const {
-    handleSubmit,
     control,
+    errors,
+    getCategories,
+    handleSubmit,
+    onSubmit,
     register,
-    formState: { errors },
-    watch,
     setValue,
-  } = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      type: "Expense",
-      account: "Cash",
-      amount: "",
-      currency: "RWF",
-      category: "",
-      labels: "",
-      date: new Date().toISOString().split("T")[0],
-      time: "11:30",
-      payee: "",
-      note: "",
-    },
-  });
-
-  const type = watch("type");
-
-  const getCategories = () => {
-    switch (type) {
-      case "Expense":
-        return ["Food", "Transport", "Utilities", "Shopping", "Entertainment"];
-      case "Income":
-        return ["Salary", "Freelance", "Investment", "Gift"];
-      case "Transfer":
-        return ["Internal Transfer", "External Transfer"];
-      default:
-        return [];
-    }
-  };
-
-  const onSubmit = (data: unknown) => {
-    console.log("Form submitted:=======", data);
-    // Perform API calls or other actions here
-  };
-
+    watch,
+    accounts,
+    isPending,
+    subcategories,
+  } = UseExpense();
   return (
     <Card className="w-full max-w-2xl mx-auto rounded-none bg-neutral-800 border-none">
       <CardHeader>
@@ -102,11 +49,21 @@ const ExpenseForm = () => {
                 {...register("account")}
                 className="w-full p-2 border rounded bg-neutral-800"
               >
-                <option value="Cash" className="bg-inherit">
-                  Cash
-                </option>
-                <option value="Bank">Bank</option>
-                <option value="Credit">Credit Card</option>
+                {accounts ? (
+                  accounts?.map((data, index) => (
+                    <option
+                      key={index}
+                      value={data.accountId as string}
+                      className="bg-inherit"
+                    >
+                      {data.name}
+                    </option>
+                  ))
+                ) : (
+                  <option key={0} value={""} className="bg-inherit">
+                    waiting ...
+                  </option>
+                )}
               </select>
               {errors.account && (
                 <span className="text-sm text-red-500">
@@ -152,11 +109,17 @@ const ExpenseForm = () => {
                 className="w-full p-2 border rounded bg-neutral-800"
               >
                 <option value="">Choose</option>
-                {getCategories().map((cat) => (
-                  <option key={cat} value={cat.toLowerCase()}>
-                    {cat}
+                {getCategories().length ? (
+                  getCategories().map((cat: { name: string; id: string }) => (
+                    <option key={cat.name} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))
+                ) : (
+                  <option key={"cat.name"} value={undefined}>
+                    waiting ...
                   </option>
-                ))}
+                )}
               </select>
               {errors.category && (
                 <span className="text-sm text-red-500">
@@ -166,14 +129,23 @@ const ExpenseForm = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Labels</label>
+              <label className="text-sm font-medium">subcategories</label>
               <select
-                {...register("labels")}
+                {...register("subcategories")}
                 className="w-full p-2 border rounded bg-neutral-800"
               >
                 <option value="">Choose</option>
-                <option value="personal">Personal</option>
-                <option value="business">Business</option>
+                {subcategories.length ? (
+                  subcategories?.map((cat: { name: string; id: string }) => (
+                    <option key={cat.name} value={cat.id}>
+                      {cat?.name}
+                    </option>
+                  ))
+                ) : (
+                  <option key={123} value={undefined}>
+                    waiting ...
+                  </option>
+                )}
               </select>
             </div>
 
@@ -241,10 +213,11 @@ const ExpenseForm = () => {
           </div>
 
           <button
+            disabled={isPending}
             type="submit"
             className="bg-cyan-800 hover:bg-cyan-700 px-10 py-2"
           >
-            Submit
+            {isPending ? "Loading ..." : "Submit"}
           </button>
         </form>
       </CardContent>
