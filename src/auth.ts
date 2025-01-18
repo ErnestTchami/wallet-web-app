@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { db } from "@/db/index";
 import { eq } from "drizzle-orm";
 import { user as User } from "@/db/schema";
+import { NewUserCreationApi } from "./service/NewUserCreationApi";
 
 export const options: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -29,15 +30,7 @@ export const options: NextAuthOptions = {
 
           // check if is the first time
           if (existingUser?.length === 0) {
-            await db.insert(User).values({
-              id: user.id,
-              firstName: user.name || "",
-              lastName: "",
-              email: user.email || "",
-              imageUrl: user.image || "",
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            });
+            await NewUserCreationApi(user);
           }
         } catch (err) {
           const error = err as Error;

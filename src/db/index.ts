@@ -1,26 +1,21 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+
 import * as schema from "./schema";
-import * as relations from "./relation";
 
-const databaseUrl = process.env.DATABASE_URL;
+const DATABASE_URL = process.env.DATABASE_URL;
 
-const drizzleClient = () => {
-  const queryClient = postgres(databaseUrl as string, {
-    ssl: { rejectUnauthorized: false },
-  });
+const sql = neon(DATABASE_URL!);
 
-  const db = drizzle(queryClient, {
-    schema: {
-      ...schema,
-      ...relations,
-    },
-  });
-  return db;
-};
+export const db = drizzle(sql, { schema });
 
-declare const globalThis: {
-  drizzleGlobal: ReturnType<typeof drizzleClient>;
-} & typeof global;
-
-export const db = globalThis.drizzleGlobal ?? drizzleClient;
+// export async function initializeDatabase() {
+//   try {
+//     await Promise.all([
+//       schema.setDefaultRoleTrigger(),
+//       schema.setupAuditTriggers(),
+//     ]);
+//   } catch (error) {
+//     console.error("Error setting up database triggers:", error);
+//   }
+// }
