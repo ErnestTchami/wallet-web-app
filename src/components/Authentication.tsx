@@ -83,7 +83,7 @@ const Authentication = () => {
               </button>
 
               {/* GitHub Auth Button */}
-              <button
+              {/* <button
                 onClick={() => handleOAuthLogin("github")}
                 className="w-full border border-slate-300 py-2 px-4 rounded-md flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors"
               >
@@ -94,7 +94,7 @@ const Authentication = () => {
                   />
                 </svg>
                 Continue with GitHub
-              </button>
+              </button> */}
             </div>
 
             <p className="text-xs text-center text-slate-500">
