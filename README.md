@@ -1,19 +1,22 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+![alt text](image.png)
+
 ## Getting Started
 
 First, run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Run pnpm install
 ```
 
+```bash
+Run pnpm dev
+```
+
+Go to `env.example` and add it into .env Go to env.example and add it into .env after restarting the app, or you can use the deployed link in the About section. I used Next.js for the full app, and for registration, you can use your Google or GitHub account.
+
+Open http://localhost:3000 with your browser to see the result.
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.

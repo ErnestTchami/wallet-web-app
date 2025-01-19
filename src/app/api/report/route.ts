@@ -2,7 +2,14 @@ import { getServerSession } from "next-auth/next";
 import { NextResponse } from "next/server";
 import { options } from "@/auth";
 import { and, eq, not, desc } from "drizzle-orm";
-import { account, category, db, transaction, user } from "@/db/schema";
+import {
+  account,
+  category,
+  db,
+  subcategory,
+  transaction,
+  user,
+} from "@/db/schema";
 import { count } from "drizzle-orm";
 
 export type AccountTypes =
@@ -52,70 +59,69 @@ export async function GET() {
       );
     }
 
-    const totIncome = await db
-      .select()
+    const Income = await db
+      .select({
+        category: category.name,
+        amount: transaction.amount,
+        subcategories: subcategory.name,
+        description: transaction.description,
+        createdAt: transaction.createdAt,
+        account: account.name,
+      })
       .from(transaction)
       .where(
         and(
           eq(transaction.userId, usersAccount[0].userId),
           eq(transaction.type, "2")
         )
-      );
+      )
+      .leftJoin(category, eq(category.id, transaction.categoryId))
+      .leftJoin(subcategory, eq(subcategory.id, transaction.subcategoryId))
+      .leftJoin(account, eq(account.id, transaction.accountId))
+      .orderBy(desc(transaction.createdAt))
+      .limit(4);
 
-    const totalTransaction = await db
+    const Expenses = await db
       .select({
-        count: count(),
+        category: category.name,
+        categoryId: category.id,
+        amount: transaction.amount,
+        subcategories: subcategory.name,
+        description: transaction.description,
+        createdAt: transaction.createdAt,
       })
-      .from(transaction)
-      .where(and(eq(transaction.userId, usersAccount[0].userId)));
-
-    const totEpenses = await db
-      .select()
       .from(transaction)
       .where(
         and(
           eq(transaction.userId, usersAccount[0].userId),
           not(eq(transaction.type, "2"))
         )
-      );
-
-    //Lats Record
-
-    const LatestTransaction = await db
-      .select({
-        id: transaction.id,
-        note: transaction.description,
-        amount: transaction.amount,
-        categoryName: category.name,
-        CreatedAt: transaction.createdAt,
-        type: transaction.type,
-      })
-      .from(transaction)
-      .where(and(eq(transaction.userId, usersAccount[0].userId)))
-      .leftJoin(category, eq(transaction.categoryId, category.id))
+      )
+      .leftJoin(category, eq(category.id, transaction.categoryId))
+      .leftJoin(subcategory, eq(subcategory.id, transaction.subcategoryId))
       .orderBy(desc(transaction.createdAt))
-      .limit(10);
+      .limit(20);
 
     // Total amount sold in this period
     const TotalexpencesAmount =
-      totEpenses?.reduce((accumulator, currentAccount) => {
+      Expenses?.reduce((accumulator, currentAccount) => {
         return accumulator + parseFloat(currentAccount.amount || "0");
       }, 0) || 0;
 
     // Total income
     const TotalIncome =
-      totIncome?.reduce((accumulator, currentAccount) => {
+      Income?.reduce((accumulator, currentAccount) => {
         return accumulator + parseFloat(currentAccount.amount || "0");
       }, 0) || 0;
 
     const Response = {
       AccountsCount: usersAccount?.length,
       category: categories[0].count,
-      TotalTransaction: totalTransaction[0].count,
       TotalAmount: totalAmount,
       TotalexpencesAmount,
       TotalIncome,
-      LatestTransaction,
+      Expenses,
+      Income,
     };
 
     return NextResponse.json(

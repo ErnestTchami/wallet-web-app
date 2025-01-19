@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Raleway } from "next/font/google";
 import "../globals.css";
 import { SessionProvider } from "@/lib/utils/SessionProvider";
-import { SidebarLinks } from "@/components/SidebarLinks";
+import { SidebarLinks } from "@/components/sidebarLinks";
 import { Toaster } from "react-hot-toast";
 import ReactQueryClientProvider from "@/lib/utils/ReactQueryProvider";
 
