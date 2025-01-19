@@ -53,6 +53,7 @@ export interface Transaction {
   id: string;
   note: string;
   type?: string;
+  account: string;
 }
 
 export interface AddNewAccountTypes {
@@ -62,3 +63,12 @@ export interface AddNewAccountTypes {
   currency: string;
   excludeFromStats: boolean;
 }
+
+export type ReportDataType = {
+  category: string;
+  categoryId: string;
+  amount: string;
+  subcategories: string;
+  description: string;
+  createdAt: string;
+};

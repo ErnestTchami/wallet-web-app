@@ -12,6 +12,13 @@ import UseDashboard from "@/hook/UseDashboard";
 
 function page() {
   const { CardData, data, handleDateChange, selectedDate } = UseDashboard();
+  if (!data)
+    return (
+      <div className="w-full h-screen flex justify-center items-center">
+        Waiting...
+      </div>
+    );
+
   return (
     <div className="">
       {" "}

@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { NextRequest, NextResponse } from "next/server";
 import { options } from "@/auth";
 import { eq } from "drizzle-orm";
-import { account, db, user } from "@/db/schema";
+import { account, db, transaction, user } from "@/db/schema";
 
 export type AccountTypes =
   | {
@@ -64,12 +64,23 @@ export const POST = async (req: NextRequest) => {
       .from(user)
       .where(eq(user.email, session.user?.email as string));
 
-    const AddAccount = await db.insert(account).values({
-      name: name,
-      userId: users[0].id,
-      balance: initialAmount,
-    });
+    const AddAccount = await db
+      .insert(account)
+      .values({
+        name: name,
+        userId: users[0].id,
+        balance: initialAmount,
+      })
+      .returning();
 
+    await db.insert(transaction).values({
+      userId: users[0].id,
+      accountId: AddAccount[0].id as string,
+      amount: initialAmount as string,
+      categoryId: "b02c3ee7-8b50-4a98-97aa-5fece8f50172" as string,
+      description: "Initial income for new account" as string,
+      type: "2",
+    });
     return NextResponse.json(
       {
         message: " transactions added successfully",

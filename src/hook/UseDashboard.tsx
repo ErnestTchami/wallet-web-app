@@ -8,8 +8,8 @@ import {
 import UseStatistics from "./useStatistics";
 
 function UseDashboard() {
-  const { data } = UseStatistics();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const { data } = UseStatistics(selectedDate);
   const CardData = [
     {
       Name: "Accounts",

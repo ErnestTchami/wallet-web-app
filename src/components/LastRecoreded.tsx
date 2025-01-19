@@ -23,7 +23,7 @@ const LastRecordedComponents = ({
       icon: category.icon,
       iconBg: category.iconBg,
       title: item.categoryName,
-      type: "Cash",
+      type: item.account,
       amount: parseFloat(item.amount),
       isExpense: item.type === "2" ? false : true,
       time: formatTimeAgo(item.CreatedAt),
